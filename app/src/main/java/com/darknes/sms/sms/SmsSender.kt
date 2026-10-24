@@ -1,7 +1,9 @@
 package com.darknes.sms.sms
 
+import android.content.ContentValues
 import android.content.Context
 import android.os.Build
+import android.provider.Telephony
 import android.telephony.SmsManager
 import com.darknes.sms.DarknesApp
 import com.darknes.sms.data.MessageEntity
@@ -21,6 +23,19 @@ object SmsSender {
         }
         val parts = smsManager.divideMessage(body)
         smsManager.sendMultipartTextMessage(address, null, parts, null, null)
+
+        // Sistem SMS kutusuna "giden" olarak yaz (kalicilik + diger
+        // uygulamalarla tutarlilik). Varsayilan SMS uygulamasiyken izinlidir.
+        try {
+            val values = ContentValues().apply {
+                put(Telephony.Sms.ADDRESS, address)
+                put(Telephony.Sms.BODY, body)
+                put(Telephony.Sms.DATE, System.currentTimeMillis())
+                put(Telephony.Sms.READ, 1)
+                put(Telephony.Sms.TYPE, Telephony.Sms.MESSAGE_TYPE_SENT)
+            }
+            context.contentResolver.insert(Telephony.Sms.Sent.CONTENT_URI, values)
+        } catch (_: Exception) { /* saglayiciya yazilamazsa yerel kayit yeterli */ }
 
         val app = context.applicationContext as DarknesApp
         val dao = app.database.messageDao()

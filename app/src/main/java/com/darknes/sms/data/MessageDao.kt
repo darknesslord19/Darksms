@@ -47,6 +47,9 @@ interface MessageDao {
     @Query("DELETE FROM messages WHERE threadAddress = :address")
     suspend fun deleteThreadMessages(address: String)
 
+    @Query("DELETE FROM messages")
+    suspend fun clearAllMessages()
+
     @Query("DELETE FROM threads WHERE address = :address")
     suspend fun deleteThread(address: String)
 

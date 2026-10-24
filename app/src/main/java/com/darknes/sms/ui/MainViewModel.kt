@@ -7,7 +7,9 @@ import com.darknes.sms.DarknesApp
 import com.darknes.sms.data.MessageEntity
 import com.darknes.sms.data.ThreadEntity
 import com.darknes.sms.data.VaultManager
+import com.darknes.sms.sms.SmsImporter
 import com.darknes.sms.sms.SmsSender
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -39,6 +41,13 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             if (addr == null) kotlinx.coroutines.flow.flowOf(emptyList())
             else dao.messages(addr)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    /** Telefondaki mevcut SMS'leri sistem saglayicisindan yukler. */
+    fun importMessages() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try { SmsImporter.importAll(getApplication(), dao) } catch (_: Exception) {}
+        }
+    }
 
     fun openThread(address: String) {
         currentAddress.value = address

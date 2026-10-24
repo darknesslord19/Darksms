@@ -1,6 +1,7 @@
 package com.darknes.sms.sms
 
 import android.content.BroadcastReceiver
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.provider.Telephony
@@ -36,6 +37,18 @@ class SmsReceiver : BroadcastReceiver() {
             try {
                 val existing = dao.thread(address)
                 val hidden = existing?.hidden ?: false
+
+                // Sistem gelen kutusuna yaz (varsayilan SMS uygulamasinin gorevi).
+                try {
+                    val values = ContentValues().apply {
+                        put(Telephony.Sms.ADDRESS, address)
+                        put(Telephony.Sms.BODY, body)
+                        put(Telephony.Sms.DATE, now)
+                        put(Telephony.Sms.READ, 0)
+                        put(Telephony.Sms.TYPE, Telephony.Sms.MESSAGE_TYPE_INBOX)
+                    }
+                    context.contentResolver.insert(Telephony.Sms.Inbox.CONTENT_URI, values)
+                } catch (_: Exception) { /* yerel kayit yeterli */ }
 
                 dao.insertMessage(
                     MessageEntity(

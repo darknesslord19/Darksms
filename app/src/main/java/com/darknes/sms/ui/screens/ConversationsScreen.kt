@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Message
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -32,8 +33,16 @@ fun ConversationsScreen(
     val threads by vm.inbox.collectAsState()
     var query by remember { mutableStateOf("") }
     var menu by remember { mutableStateOf(false) }
+    var composing by remember { mutableStateOf(false) }
 
     Scaffold(
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = { composing = true },
+                icon = { Icon(Icons.AutoMirrored.Filled.Message, contentDescription = null) },
+                text = { Text("Yeni mesaj") }
+            )
+        },
         topBar = {
             TopAppBar(
                 title = { Text("Darknes SMS") },
@@ -97,6 +106,31 @@ fun ConversationsScreen(
                 }
             }
         }
+    }
+
+    // Yeni mesaj: numara girilip sohbete gidilir, orada yazilip gonderilir.
+    if (composing) {
+        var number by remember { mutableStateOf("") }
+        AlertDialog(
+            onDismissRequest = { composing = false },
+            title = { Text("Yeni mesaj") },
+            text = {
+                OutlinedTextField(
+                    value = number,
+                    onValueChange = { number = it },
+                    label = { Text("Alici numarasi") },
+                    singleLine = true
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    val n = number.trim()
+                    composing = false
+                    if (n.isNotEmpty()) onOpenThread(n)
+                }) { Text("Devam") }
+            },
+            dismissButton = { TextButton(onClick = { composing = false }) { Text("Vazgec") } }
+        )
     }
 }
 
