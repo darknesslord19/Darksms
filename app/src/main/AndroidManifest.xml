@@ -57,6 +57,13 @@
             </intent-filter>
         </receiver>
 
+        <!-- MMS gonderiminde ham PDU'yu sistem MMS servisine acan saglayici -->
+        <provider
+            android:name=".sms.MmsFileProvider"
+            android:authorities="${applicationId}.mms"
+            android:exported="true"
+            android:grantUriPermissions="true" />
+
         <service
             android:name=".sms.HeadlessSmsSendService"
             android:exported="true"

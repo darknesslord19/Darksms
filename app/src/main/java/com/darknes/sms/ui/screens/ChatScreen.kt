@@ -88,7 +88,7 @@ fun ChatScreen(vm: MainViewModel, address: String, onBack: () -> Unit) {
                         Modifier.fillMaxWidth().padding(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        IconButton(onClick = { picker.launch("*/*") }) {
+                        IconButton(onClick = { picker.launch("image/*") }) {
                             Icon(Icons.Default.Add, contentDescription = "Ek")
                         }
                         OutlinedTextField(
@@ -100,11 +100,11 @@ fun ChatScreen(vm: MainViewModel, address: String, onBack: () -> Unit) {
                         )
                         IconButton(onClick = {
                             val e = editing
-                            if (e != null) {
-                                vm.editOwnMessage(e.id, input)
-                                editing = null
-                            } else {
-                                vm.send(address, input)
+                            val att = attachment
+                            when {
+                                e != null -> { vm.editOwnMessage(e.id, input); editing = null }
+                                att != null -> vm.sendMms(address, input.ifBlank { null }, att)
+                                input.isNotBlank() -> vm.send(address, input)
                             }
                             input = ""
                             attachment = null
@@ -179,8 +179,10 @@ fun MessageBubble(
                 .combinedClickableCompat { menu = true }
                 .padding(12.dp)
             ) {
-                msg.attachmentUri?.let {
-                    AsyncImage(model = it, contentDescription = null,
+                msg.attachmentUri?.let { path ->
+                    val model: Any = if (path.startsWith("content://") || path.startsWith("file://"))
+                        path else java.io.File(path)
+                    AsyncImage(model = model, contentDescription = null,
                         modifier = Modifier.sizeIn(maxHeight = 220.dp).clip(RoundedCornerShape(8.dp)))
                     Spacer(Modifier.height(6.dp))
                 }

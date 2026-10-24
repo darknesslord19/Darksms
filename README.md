@@ -5,7 +5,8 @@ Android SMS uygulaması (`com.darknes.sms`). Jetpack Compose + Kotlin + Room ile
 ## Özellikler
 
 - **SMS gönder / al / ilet** — cihazın varsayılan SMS uygulaması olarak çalışır.
-- **Multimedya eki** — sohbette resim/medya seçip önizleme (gönderme için not: aşağıya bakın).
+- **Multimedya (MMS) gönderme** — sohbette "+" ile resim seç, istersen metin ekle, gönder.
+  Platformun MMS API'si (`sendMultimediaMessage`) ile yollanır; resim sohbette görünür.
 - **Gizli kasa (PIN korumalı)** — WhatsApp'ın kilitli sohbetleri gibi. Seçtiğin konuşmalar
   ana listede ve bildirimlerde **hiç görünmez**; yalnızca PIN ile açılan bölümde durur.
   - Kasa, arayüzde hiçbir yerde belirgin değildir.
@@ -36,8 +37,9 @@ Projeyi Android Studio'da aç; Gradle senkronu bağımlılıkları indirir ve
 
 ## Bilinenler / sınırlar
 
-- **MMS gönderme** operatöre özel API gerektirir; bu sürümde ek önizlemesi vardır,
-  giden MMS tam olarak kablolanmamıştır. Gelen SMS ve giden SMS tam çalışır.
+- **MMS gönderme** uygulandı (resim + metin). Gerçek teslim operatöre, APN'e ve veri
+  bağlantısına bağlıdır; bazı operatörlerde ayar gerekebilir. **Gelen MMS'in otomatik
+  indirilip görüntülenmesi** bu sürümde sınırlıdır (gelen/giden SMS ve giden MMS tam çalışır).
 - Uygulama yerel bir veritabanı kullanır; cihaz SMS sağlayıcısıyla tam senkron
   (eski mesajların içe aktarımı) bu iskelette minimal tutulmuştur.
 

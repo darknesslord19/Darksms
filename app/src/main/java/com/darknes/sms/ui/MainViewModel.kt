@@ -6,7 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.darknes.sms.DarknesApp
 import com.darknes.sms.data.MessageEntity
 import com.darknes.sms.data.ThreadEntity
+import android.net.Uri
 import com.darknes.sms.data.VaultManager
+import com.darknes.sms.sms.MmsSender
 import com.darknes.sms.sms.SmsImporter
 import com.darknes.sms.sms.SmsSender
 import kotlinx.coroutines.Dispatchers
@@ -57,6 +59,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     fun send(address: String, body: String) {
         if (body.isBlank()) return
         viewModelScope.launch { SmsSender.send(getApplication(), address, body) }
+    }
+
+    fun sendMms(address: String, body: String?, media: Uri) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try { MmsSender.send(getApplication(), address, body, media) } catch (_: Exception) {}
+        }
     }
 
     fun forward(toAddress: String, body: String) {
