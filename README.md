@@ -8,7 +8,9 @@ Android SMS uygulaması (`com.darknes.sms`). Jetpack Compose + Kotlin + Room ile
 - **Multimedya eki** — sohbette resim/medya seçip önizleme (gönderme için not: aşağıya bakın).
 - **Gizli kasa (PIN korumalı)** — WhatsApp'ın kilitli sohbetleri gibi. Seçtiğin konuşmalar
   ana listede ve bildirimlerde **hiç görünmez**; yalnızca PIN ile açılan bölümde durur.
-  - Kasaya giriş: ana ekrandaki **arama alanına kasa PIN'ini yaz ve arama tuşuna bas**.
+  - Kasa, arayüzde hiçbir yerde belirgin değildir.
+  - **PIN belirleme (gizli):** Ayarlar → "Sürüm 1.0" satırına arka arkaya **7 kez** dokun.
+  - **Kasayı açma:** ana ekrandaki **arama alanına PIN'i yaz ve arama tuşuna bas**.
   - PIN, cihaz anahtarıyla şifrelenmiş olarak (SHA-256 özeti) saklanır; düz metin tutulmaz.
 - **Mesaj düzenleme** — yalnızca **kendi gönderdiğin** mesajlar düzenlenebilir ve
   "düzenlendi" etiketi görünür (iMessage/WhatsApp mantığı). Gelen mesajlar değiştirilemez.

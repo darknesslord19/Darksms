@@ -1,5 +1,6 @@
 package com.darknes.sms.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -16,7 +17,11 @@ import com.darknes.sms.ui.MainViewModel
 @Composable
 fun SettingsScreen(vm: MainViewModel, onBack: () -> Unit) {
     var showPinDialog by remember { mutableStateOf(false) }
-    var pinSet by remember { mutableStateOf(vm.vault.isPinSet) }
+
+    // Gizli tetik: "Surum" satirina ust uste dokunma sayaci.
+    // 7 dokunusta kasa PIN ekrani acilir. Ekranda hicbir ipucu yoktur.
+    var tapCount by remember { mutableStateOf(0) }
+    var lastTap by remember { mutableStateOf(0L) }
 
     Scaffold(
         topBar = {
@@ -30,37 +35,34 @@ fun SettingsScreen(vm: MainViewModel, onBack: () -> Unit) {
             )
         }
     ) { pad ->
-        Column(Modifier.padding(pad).fillMaxSize().padding(16.dp)) {
-
-            Text("Gizli kasa", style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.height(4.dp))
-            Text(
-                "Kasa PIN'i belirlenince, ana ekrandaki arama alanina bu PIN'i " +
-                    "yazip arama tusuna basarak kasayi acabilirsin. Kasadaki " +
-                    "konusmalar ana listede ve bildirimlerde gorunmez.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline
-            )
-            Spacer(Modifier.height(12.dp))
+        Column(Modifier.padding(pad).fillMaxSize()) {
 
             ListItem(
-                headlineContent = { Text(if (pinSet) "Kasa PIN'ini degistir" else "Kasa PIN'i belirle") },
-                trailingContent = {
-                    TextButton(onClick = { showPinDialog = true }) {
-                        Text(if (pinSet) "Degistir" else "Belirle")
+                headlineContent = { Text("Bildirimler") },
+                supportingContent = { Text("Yeni mesaj bildirimleri aciktir") }
+            )
+            HorizontalDivider()
+
+            ListItem(
+                headlineContent = { Text("Uygulama") },
+                supportingContent = { Text("Darknes SMS") }
+            )
+            HorizontalDivider()
+
+            // Sira disi gorunmeyen gizli tetik.
+            ListItem(
+                headlineContent = { Text("Surum") },
+                supportingContent = { Text("1.0") },
+                modifier = Modifier.clickable {
+                    val now = System.currentTimeMillis()
+                    tapCount = if (now - lastTap < 1200) tapCount + 1 else 1
+                    lastTap = now
+                    if (tapCount >= 7) {
+                        tapCount = 0
+                        showPinDialog = true
                     }
                 }
             )
-            if (pinSet) {
-                ListItem(
-                    headlineContent = { Text("Kasa PIN'ini kaldir") },
-                    trailingContent = {
-                        TextButton(onClick = { vm.vault.clearPin(); pinSet = false }) {
-                            Text("Kaldir")
-                        }
-                    }
-                )
-            }
         }
     }
 
@@ -68,13 +70,14 @@ fun SettingsScreen(vm: MainViewModel, onBack: () -> Unit) {
         var p1 by remember { mutableStateOf("") }
         var p2 by remember { mutableStateOf("") }
         var err by remember { mutableStateOf<String?>(null) }
+        val alreadySet = vm.vault.isPinSet
         AlertDialog(
             onDismissRequest = { showPinDialog = false },
-            title = { Text("Kasa PIN'i") },
+            title = { Text(if (alreadySet) "PIN degistir" else "PIN belirle") },
             text = {
                 Column {
                     OutlinedTextField(value = p1, onValueChange = { p1 = it; err = null },
-                        label = { Text("Yeni PIN") }, singleLine = true,
+                        label = { Text("PIN") }, singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword))
                     Spacer(Modifier.height(8.dp))
@@ -90,11 +93,20 @@ fun SettingsScreen(vm: MainViewModel, onBack: () -> Unit) {
                     when {
                         p1.length < 4 -> err = "En az 4 haneli olmali"
                         p1 != p2 -> err = "Eslesmiyor"
-                        else -> { vm.vault.setPin(p1); pinSet = true; showPinDialog = false }
+                        else -> { vm.vault.setPin(p1); showPinDialog = false }
                     }
                 }) { Text("Kaydet") }
             },
-            dismissButton = { TextButton(onClick = { showPinDialog = false }) { Text("Vazgec") } }
+            dismissButton = {
+                Row {
+                    if (alreadySet) {
+                        TextButton(onClick = { vm.vault.clearPin(); showPinDialog = false }) {
+                            Text("Kaldir")
+                        }
+                    }
+                    TextButton(onClick = { showPinDialog = false }) { Text("Vazgec") }
+                }
+            }
         )
     }
 }
